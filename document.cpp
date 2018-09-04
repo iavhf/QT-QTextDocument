@@ -3,6 +3,7 @@
 #include <QTextFrame>
 #include <QTextBlock>
 #include <QTextCursor>
+#include <QTextList>
 #include <QTextTableCell>
 #include <QPrinter>
 #include <QDebug>
@@ -22,7 +23,7 @@ void ProcessImage(QTextCursor& cursor, QString image_file_name)
     cursor.insertImage(imageFormat);
 }
 
-void ProcessTable(QTextDocument* document, QTextCursor& cursor)
+void ProcessTable(QTextCursor& cursor)
 {
     const int rows = 2;
     const int cols = 3;
@@ -42,43 +43,24 @@ void ProcessTable(QTextDocument* document, QTextCursor& cursor)
             cellCursor.insertText(content);
         }
     }
-    /*cell = table->cellAt(0,0);
-    cellCursor = cell.firstCursorPosition();
-    cellCursor.insertText("0,0");
-
-    cell = table->cellAt(0,1);
-    cellCursor = cell.firstCursorPosition();
-    cellCursor.insertText("0,1");
-
-    cell = table->cellAt(0,2);
-    cellCursor = cell.firstCursorPosition();
-    cellCursor.insertText("0,2");
-
-    cell = table->cellAt(1,0);
-    cellCursor = cell.firstCursorPosition();
-    cellCursor.insertText("1,0");
-
-    cell = table->cellAt(1,1);
-    cellCursor = cell.firstCursorPosition();
-    cellCursor.insertText("1,1");
-
-    cell = table->cellAt(1,2);
-    cellCursor = cell.firstCursorPosition();
-    cellCursor.insertText("1,2");*/
 }
-void ProcessList(QTextDocument* document, QTextCursor& cursor)
+void ProcessList(QTextCursor& cursor)
 {
     QTextListFormat listFormat;
-    listFormat.setIndent(3);
+    listFormat.setIndent(1);
     listFormat.setStyle(QTextListFormat::ListCircle);
 
-    QTextList *list = cursor.insertList(listFormat);
-    cursor.insertText("Hello world in list");
+    QTextList *list1 = cursor.insertList(listFormat);
+    cursor.insertText("Hello world in list1");
+    QTextList *list2 = cursor.insertList(listFormat);
+    cursor.insertText("Hello world in list2");
+    QTextList *list3 = cursor.insertList(listFormat);
+    cursor.insertText("Hello world in list3");
 }
 
-void PrintBlock(QTextBlock currentBlock)
+void PrintAllBlock(QTextDocument* document)
 {
-    //QTextBlock currentBlock = document->begin();
+    QTextBlock currentBlock = document->begin();
     int num_block = 0;
 
     while(currentBlock.isValid()) {
@@ -87,6 +69,10 @@ void PrintBlock(QTextBlock currentBlock)
         num_block++;
     }
 
+}
+void PrintBlock(QTextBlock currentBlock)
+{
+    qDebug() << "Current block index = " << currentBlock.position() << "The content of block is " << currentBlock.text();
 }
 void PrintFrame(QTextDocument* document)
 {
@@ -103,6 +89,13 @@ void PrintFrame(QTextDocument* document)
         else if(childBlock.isValid())
         {
             qDebug() << "child block";
+
+            QTextList* list = childBlock.textList();
+            if(list)
+            {
+                int index = list->itemNumber(childBlock);
+                qDebug() << "list index: " << index;
+            }
             PrintBlock(childBlock);
         }
     }
@@ -120,7 +113,7 @@ int main(int argc, char *argv[])
     QTextCursor cursor(document);
     cursor.insertText("Hello world");
 
-    ProcessTable(document, cursor);
+    ProcessTable(cursor);
 
     cursor.setPosition(root_frame->lastPosition());
     cursor.insertText("Hello world0");
@@ -131,11 +124,12 @@ int main(int argc, char *argv[])
     cursor.insertText("Hello world5");
 
     ProcessImage(cursor, "IP.png");
+    ProcessList(cursor);
     SaveToPDF(document);
     //return app.exec();
     //
     qDebug() << "Print All TextBlocks";
-    PrintBlock(document->begin());
+    PrintAllBlock(document);
     qDebug() << "Print All frames";
     PrintFrame(document);
     return 0;

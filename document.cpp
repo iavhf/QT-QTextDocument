@@ -74,6 +74,25 @@ void PrintBlock(QTextBlock currentBlock)
 {
     qDebug() << "Current block index = " << currentBlock.position() << "The content of block is " << currentBlock.text();
 }
+void PrintList(QTextList* list)
+{
+    qDebug() << "list count = " << list->count();
+}
+void PrintTable(QTextTable* table)
+{
+    int rows = table->rows();
+    int cols = table->columns();
+    for(int i = 0; i < rows; i++)
+    {
+        for(int j = 0; j < cols; j++)
+        {
+            QTextTableCell cell = table->cellAt(i,j);
+            QTextCursor cellCursor = cell.firstCursorPosition();
+            QTextBlock block = cellCursor.block();
+            PrintBlock(block);
+        }
+    }
+}
 void PrintFrame(QTextDocument* document)
 {
     QTextFrame::iterator it;
@@ -85,6 +104,12 @@ void PrintFrame(QTextDocument* document)
         if(childFrame)
         {
             qDebug() << "child frame";
+            QTextTable* childTable = qobject_cast<QTextTable*>(childFrame);
+            if(childTable)
+            {
+                qDebug() << "Print Table content";
+                PrintTable(childTable);
+            }
         }
         else if(childBlock.isValid())
         {
@@ -93,8 +118,9 @@ void PrintFrame(QTextDocument* document)
             QTextList* list = childBlock.textList();
             if(list)
             {
-                int index = list->itemNumber(childBlock);
-                qDebug() << "list index: " << index;
+                qDebug() << "child list";
+                PrintList(list);
+                qDebug() << "list number: " << list->itemNumber(childBlock);
             }
             PrintBlock(childBlock);
         }

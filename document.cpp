@@ -52,9 +52,10 @@ void ProcessList(QTextCursor& cursor)
 
     QTextList *list1 = cursor.insertList(listFormat);
     cursor.insertText("Hello world in list1");
-    QTextList *list2 = cursor.insertList(listFormat);
+    cursor.insertBlock();
     cursor.insertText("Hello world in list2");
-    QTextList *list3 = cursor.insertList(listFormat);
+    cursor.insertBlock();   //try empty block
+    cursor.insertBlock();
     cursor.insertText("Hello world in list3");
 }
 
@@ -77,6 +78,11 @@ void PrintBlock(QTextBlock currentBlock)
 void PrintList(QTextList* list)
 {
     qDebug() << "list count = " << list->count();
+    for(int index = 0 ; index < list->count(); index++)
+    {
+        QTextBlock listItem = list->item(index);
+        PrintBlock(listItem);
+    }
 }
 void PrintTable(QTextTable* table)
 {
@@ -120,9 +126,10 @@ void PrintFrame(QTextDocument* document)
             {
                 qDebug() << "child list";
                 PrintList(list);
-                qDebug() << "list number: " << list->itemNumber(childBlock);
             }
-            PrintBlock(childBlock);
+            else {
+                PrintBlock(childBlock);
+            }
         }
     }
 }
@@ -154,8 +161,8 @@ int main(int argc, char *argv[])
     SaveToPDF(document);
     //return app.exec();
     //
-    qDebug() << "Print All TextBlocks";
-    PrintAllBlock(document);
+    //qDebug() << "Print All TextBlocks";
+    //PrintAllBlock(document);
     qDebug() << "Print All frames";
     PrintFrame(document);
     return 0;

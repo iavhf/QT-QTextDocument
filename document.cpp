@@ -48,7 +48,7 @@ void ProcessList(QTextCursor& cursor)
 {
     QTextListFormat listFormat;
     listFormat.setIndent(1);
-    listFormat.setStyle(QTextListFormat::ListCircle);
+    listFormat.setStyle(QTextListFormat::ListLowerAlpha);
 
     QTextList *list1 = cursor.insertList(listFormat);
     cursor.insertText("Hello world in list1");
@@ -124,7 +124,8 @@ void PrintFrame(QTextDocument* document)
             QTextList* list = childBlock.textList();
             if(list)
             {
-                qDebug() << "child list";
+                int index = list->itemNumber(childBlock);
+                qDebug() << "child list" << index;
                 PrintList(list);
             }
             else {
